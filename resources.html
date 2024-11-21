@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Page</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1,
+        h2 {
+            text-align: center;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .preview {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        #loginButton {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 10px;
+            font-size: 16px;
+            color: #fff;
+            background: #007BFF;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #loginButton:hover {
+            background: #0056b3;
+        }
+
+        .private-section {
+            display: none;
+            filter: blur(10px);
+            transition: filter 0.3s;
+        }
+
+        .private-section.visible {
+            display: block;
+            filter: blur(0);
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .popup-content h3 {
+            margin-top: 0;
+        }
+
+        .popup-content input {
+            padding: 10px;
+            font-size: 16px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .popup-content button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background: #007BFF;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .popup-content button:hover {
+            background: #0056b3;
+        }
+
+        .popup-content .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Resource Page</h1>
+    <div class="container">
+
+        <div class="section">
+            <h2 style="background-color: rgb(254, 175, 70); border-radius: 15px;">Public Resources</h2>
+            <ul>
+                <li>
+                    <img src="resources/public/pub.webp" alt="Public Resource 1" class="preview">
+                    <a href="resources/public/pub.webp" target="_blank">Public Resource 1</a>
+                </li>
+                <li>
+                    <img src="resources/public/pub.webp" alt="Public Resource 2" class="preview">
+                    <a href="resources/public/pub.webp" target="_blank">Public Resource 2</a>
+                </li>
+                <!-- Add more public resources here with preview images -->
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2 style="background-color: rgb(254, 175, 70); border-radius: 15px;">Private Resources</h2>
+            <center>
+            <button id="loginButton">Access Private Resources</button>
+            </center>
+        </div>
+
+        <div class="private-section" id="privateSection">
+            <h2>Private Resources</h2>
+            <ul>
+                <li><a href="resources/private/priv.png" target="_blank">Private Resource 1</a></li>
+                <li><a href="resources/private/priv.png" target="_blank">Private Resource 2</a></li>
+                <!-- Add more private resources here -->
+            </ul>
+        </div>
+    </div>
+
+    <div class="popup" id="popup">
+        <div class="popup-content">
+            <button style="background-color: red;" class="close-btn" onclick="closePopup()">×</button>
+            <h3>Enter Password</h3>
+            <input type="password" id="passwordInput" placeholder="Enter password">
+            <button onclick="checkPassword()">Submit</button>
+        </div>
+    </div>
+
+    <script>
+        // Correct password hash (SHA-256 of "your password")
+        const correctPasswordHash = "ea71c25a7a602246b4c39824b855678894a96f43bb9b71319c39700a1e045222";
+
+        // SHA-256 hash function
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+
+        document.getElementById('loginButton').addEventListener('click', function () {
+            document.getElementById('popup').style.display = 'flex';
+        });
+
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+        }
+
+        async function checkPassword() {
+            const enteredPassword = document.getElementById('passwordInput').value;
+            const enteredPasswordHash = await sha256(enteredPassword);
+            if (enteredPasswordHash === correctPasswordHash) {
+                document.getElementById('privateSection').classList.add('visible');
+                closePopup();
+            } else {
+                alert('Incorrect password. Please try again.');
+            }
+        }
+    </script>
+    </body>
+    
+    </html>
